@@ -1,20 +1,13 @@
 # jupyter lab runs from L4_ds folder
 uv run --project abkit --with jupyter jupyter lab
 
-Event_time column str in format of 2019-12-01 00:00:00 UTC
+Data decisions. All 20,692,840 events are kept.
 
-size of each file
-../data/rees46/raw/2019-Dec.csv : 3533286 rows
-../data/rees46/raw/2019-Nov.csv : 4635837 rows
-../data/rees46/raw/2019-Oct.csv : 4102283 rows
-../data/rees46/raw/2020-Feb.csv : 4156682 rows
-../data/rees46/raw/2020-Jan.csv : 4264752 rows
+Rows without a session (4,598, none are purchases): 
+kept in events and user_months; left out of sessions, because they have no session to belong to.
 
+Negative prices (126 purchases, −0.06% of revenue): 
+kept as recorded.
 
-../data/rees46/raw/2019-Dec.csv empty user_sessions: 779
-../data/rees46/raw/2019-Nov.csv empty user_sessions: 813
-../data/rees46/raw/2019-Oct.csv empty user_sessions: 637
-../data/rees46/raw/2020-Feb.csv empty user_sessions: 1055
-../data/rees46/raw/2020-Jan.csv empty user_sessions: 1314
-
-each session is unique to one user
+Exact duplicates (1.1M, 89% remove_from_cart; purchases 0.05% of revenue): 
+kept. Simulated user-level splits put them in both groups equally. Revisit for cart-based metrics in chapter 5.
