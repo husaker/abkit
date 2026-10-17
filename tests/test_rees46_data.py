@@ -97,3 +97,25 @@ def test_each_users_event_counts_agree_across_tables(events, sessions, user_mont
         check_names=False,
         check_dtype=False,
     )
+
+
+# C6: each user's revenue agrees across the three tables. C3 checks only the totals,
+# so revenue moved from one user to another would pass C3 and C5 but fail here.
+def test_each_users_revenue_agrees_across_tables(events, sessions, user_months):
+    purchase_price = events["price"].where(events["event_type"].eq("purchase"), 0.0)
+    revenue_per_user = purchase_price.groupby(events["user_id"]).sum()
+    has_session = events["user_session"].notna()
+    session_revenue_per_user = purchase_price[has_session].groupby(events.loc[has_session, "user_id"]).sum()
+
+    pd.testing.assert_series_equal(
+        user_months.groupby("user_id")["revenue"].sum().sort_index(),
+        revenue_per_user.sort_index(),
+        check_names=False,
+        check_exact=False,
+    )
+    pd.testing.assert_series_equal(
+        sessions.groupby("user_id")["revenue"].sum().sort_index(),
+        session_revenue_per_user.sort_index(),
+        check_names=False,
+        check_exact=False,
+    )
