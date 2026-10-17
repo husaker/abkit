@@ -1,3 +1,6 @@
+# jupyter lab runs from L4_ds folder
+uv run --project abkit --with jupyter jupyter lab
+
 Event_time column str in format of 2019-12-01 00:00:00 UTC
 
 size of each file
