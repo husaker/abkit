@@ -33,12 +33,12 @@ def split_users(n_users: int, rng: np.random.Generator) -> np.ndarray:
     return treated
 
 
-def multiply(values: np.ndarray, lift: float, rng=np.random.default_rng(0)) -> np.ndarray:
+def multiply(values: np.ndarray, lift: float, rng: np.random.Generator) -> np.ndarray:
     """Multiply values with lift"""
 
     return values * (1 + lift)
 
-def add_conversions(values: np.ndarray, lift: float, rng=np.random.default_rng(0)) -> np.ndarray:
+def add_conversions(values: np.ndarray, lift: float, rng: np.random.Generator) -> np.ndarray:
     """Convert a random share of the non-converters"""
 
     if not np.isin(values, [0, 1]).all():
@@ -51,7 +51,7 @@ def add_conversions(values: np.ndarray, lift: float, rng=np.random.default_rng(0
     if q < 0 or q > 1:
         raise ValueError(f"convertion must be between 0 and 1")
 
-    num_new_converted = np.ceil(q * len(non_converted)).astype(int)
+    num_new_converted = round(q * len(non_converted))
     size = min(num_new_converted, len(non_converted))
     chosen = rng.choice(non_converted, size=size, replace=False)
 
@@ -64,14 +64,16 @@ def run_aa(values: np.ndarray, test, n_simulations=1000, alpha=0.05, seed=0) -> 
     """ Simulate AA tests on N simulations and then get the simulation result as a DataClass"""
 
     rng = np.random.default_rng(seed)
-    sim = SimulationResult(p_values=np.zeros(n_simulations), alpha=alpha)
+    p_values = []
 
     for i in range(n_simulations):
         treated = split_users(len(values), rng=rng)
         control = values[~treated]
         treatment = values[treated]
         p_val = test(control, treatment)
-        sim.p_values[i] = p_val
+        p_values.append(p_val)
+
+    sim = SimulationResult(p_values=np.array(p_values), alpha=alpha)
 
     return sim
 
@@ -82,7 +84,7 @@ def run_ab(values: np.ndarray, test, inject, lift: float, n_simulations=1000, al
     otherwise user multiply function"""
 
     rng = np.random.default_rng(seed)
-    sim = SimulationResult(p_values=np.zeros(n_simulations), alpha=alpha)
+    p_values = []
 
     for i in range(n_simulations):
         treated = split_users(len(values), rng=rng)
@@ -91,7 +93,9 @@ def run_ab(values: np.ndarray, test, inject, lift: float, n_simulations=1000, al
         treatment = inject(values[treated], lift, rng=rng)
 
         p_val = test(control, treatment)
-        sim.p_values[i] = p_val
+        p_values.append(p_val)
+
+    sim = SimulationResult(p_values=np.array(p_values), alpha=alpha)
 
     return sim
 
