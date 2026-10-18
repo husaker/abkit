@@ -153,3 +153,21 @@ def test_bigger_lifts_are_detected_more_often(conversions):
     large = run_ab(conversions, welch, inject=add_conversions, lift=0.30, n_simulations=300, seed=23)
 
     assert large.rejection_rate > small.rejection_rate + 0.3
+
+
+def test_ab_puts_the_lift_in_the_treatment_group(revenue_like):
+    # A two-sided test only sees how big the difference is, so the tests above would still pass
+    # if the lift went into control. A one-sided test also sees which group is higher.
+    def treatment_is_higher(control, treatment):
+        return stats.ttest_ind(control, treatment, equal_var=False, alternative="less").pvalue
+
+    result = run_ab(revenue_like, treatment_is_higher, inject=multiply, lift=0.10, n_simulations=200, seed=24)
+
+    assert result.rejection_rate > 0.95
+
+def test_rub_ab_is_reproducible_from_a_seed(conversions):
+    # check reproducibility of ab test injecting a lift
+    result_f = run_ab(conversions, welch, inject=add_conversions, lift=0.10, n_simulations=300, seed=23)
+    result_s = run_ab(conversions, welch, inject=add_conversions, lift=0.10, n_simulations=300, seed=23)
+
+    assert np.array_equal(result_f.p_values, result_s.p_values)

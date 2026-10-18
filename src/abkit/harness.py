@@ -88,7 +88,7 @@ def run_ab(values: np.ndarray, test, inject, lift: float, n_simulations=1000, al
         treated = split_users(len(values), rng=rng)
 
         control = values[~treated]
-        treatment = inject(values[treated], lift)
+        treatment = inject(values[treated], lift, rng=rng)
 
         p_val = test(control, treatment)
         sim.p_values[i] = p_val
