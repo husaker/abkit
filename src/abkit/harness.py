@@ -48,14 +48,11 @@ def add_conversions(values: np.ndarray, lift: float, rng=np.random.default_rng(0
     base_conv = values.mean() # get base convertion rate
     non_converted = np.where(values == 0)[0] # get idx of non-converters
     q = base_conv * lift / (1 - base_conv) # calculate cr-lift
-    print(q)
     if q < 0 or q > 1:
         raise ValueError(f"convertion must be between 0 and 1")
 
     num_new_converted = np.ceil(q * len(non_converted)).astype(int)
-    print(num_new_converted)
     size = min(num_new_converted, len(non_converted))
-    print(size)
     chosen = rng.choice(non_converted, size=size, replace=False)
 
     new_values[non_converted] = 0
@@ -64,7 +61,7 @@ def add_conversions(values: np.ndarray, lift: float, rng=np.random.default_rng(0
     return new_values
 
 def run_aa(values: np.ndarray, test, n_simulations=1000, alpha=0.05, seed=0) -> SimulationResult:
-    """ Simulate AA tests"""
+    """ Simulate AA tests on N simulations and then get the simulation result as a DataClass"""
 
     rng = np.random.default_rng(seed)
     sim = SimulationResult(p_values=np.zeros(n_simulations), alpha=alpha)
@@ -80,7 +77,9 @@ def run_aa(values: np.ndarray, test, n_simulations=1000, alpha=0.05, seed=0) -> 
 
 
 def run_ab(values: np.ndarray, test, inject, lift: float, n_simulations=1000, alpha=0.05, seed=0) -> SimulationResult:
-    """ Simulate AB tests"""
+    """ Simulate AB tests on N simulations and then get the simulation result as a DataClass
+    injecting lift into treatment group depends on metric type if it's binary choose add_conversions
+    otherwise user multiply function"""
 
     rng = np.random.default_rng(seed)
     sim = SimulationResult(p_values=np.zeros(n_simulations), alpha=alpha)
