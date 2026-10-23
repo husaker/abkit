@@ -12,7 +12,7 @@ class SimulationResult:
 
     @property
     def rejection_rate(self) -> float:
-        return (self.p_values < self.alpha).mean()
+        return (self.p_values <= self.alpha).mean()
 
     @property
     def mc_standard_error(self) -> float:
@@ -23,11 +23,12 @@ class SimulationResult:
         return std / sqrt_n
 
 
-def split_users(n_users: int, rng: np.random.Generator) -> np.ndarray:
+def split_users(n_users: int, rng: np.random.Generator, split=0.5) -> np.ndarray:
     """Randomly assign treatment group to n_users // 2 users. True means treatment"""
 
     treated = np.zeros(n_users, dtype=bool) # start with everyone in control
-    chosen = rng.permutation(n_users)[: n_users // 2]
+    treatment_group = int(n_users * split)
+    chosen = rng.permutation(n_users)[: treatment_group]
     treated[chosen] = True
 
     return treated
