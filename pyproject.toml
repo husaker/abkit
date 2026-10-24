@@ -8,6 +8,7 @@ dependencies = [
     "numpy>=2.5.4",
     "pandas>=3.0.6",
     "pyarrow>=26.0.0",
+    "scipy>=1.18.1",
 ]
 
 [build-system]
@@ -19,7 +20,6 @@ dev = [
     "ipykernel>=7.4.0",
     "pytest>=9.1.1",
     "ruff>=0.17.0",
-    "scipy>=1.18.1",
     "seaborn>=0.13.2",
     "statsmodels>=0.15.0",
 ]

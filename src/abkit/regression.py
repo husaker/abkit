@@ -7,6 +7,7 @@ class OLSResult:
     coef: np.ndarray
     classical_se: np.ndarray
     robust_se: np.ndarray
+    hc2_se: np.ndarray
 
 def ols(y: np.ndarray, X: np.ndarray) -> OLSResult:
     """Ordinary least square regression with classical and robust SE"""
@@ -33,9 +34,13 @@ def ols(y: np.ndarray, X: np.ndarray) -> OLSResult:
     sigma2 = resid @ resid / (n - k)  # resid @ resid is Σ residual², which is RSS, divide by n − k rather than n because we used up k numbers fitting the coefficients
     classical_se = np.sqrt(np.diag(xtx_inv) * sigma2) # SE of the slope coefficietn B1
 
-    meat = (X * np.array(resid)[:, None] ** 2).T @ X  # Xᵀ diag(e²) X, without an n×n matrix, resid[:, None] turns the residuals into a column, so each row of X is multiplied by its own e².
+    meat = (X * (resid**2)[:, None]).T @ X  # Xᵀ diag(e²) X, without an n×n matrix, resid[:, None] turns the residuals into a column, so each row of X is multiplied by its own e².
     robust_se = np.sqrt(np.diag(xtx_inv @ meat @ xtx_inv))  # The robust SE of the slope, is exactly z-test’s unpooled SE. Each user keeps their own squared residual instead of sharing one σ²
 
-    return OLSResult(coef=coef, classical_se=classical_se, robust_se=robust_se)
+    h = np.sum((X @ xtx_inv) * X, axis=1)  # leverage of each row, shape (n,)
+    meat2 = (X * (resid ** 2 / (1 - h))[:, None]).T @ X  # like HC0's meat, with corrected e²
+    hc2_se = np.sqrt(np.diag(xtx_inv @ meat2 @ xtx_inv))
+
+    return OLSResult(coef=coef, classical_se=classical_se, robust_se=robust_se, hc2_se=hc2_se)
 
 

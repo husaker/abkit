@@ -61,14 +61,14 @@ def add_conversions(values: np.ndarray, lift: float, rng: np.random.Generator) -
 
     return new_values
 
-def run_aa(values: np.ndarray, test, n_simulations=1000, alpha=0.05, seed=0) -> SimulationResult:
+def run_aa(values: np.ndarray, test, n_simulations=1000, alpha=0.05, seed=0, split=0.5) -> SimulationResult:
     """ Simulate AA tests on N simulations and then get the simulation result as a DataClass"""
 
     rng = np.random.default_rng(seed)
     p_values = []
 
     for i in range(n_simulations):
-        treated = split_users(len(values), rng=rng)
+        treated = split_users(len(values), split=split, rng=rng)
         control = values[~treated]
         treatment = values[treated]
         p_val = test(control, treatment)
@@ -79,7 +79,7 @@ def run_aa(values: np.ndarray, test, n_simulations=1000, alpha=0.05, seed=0) -> 
     return sim
 
 
-def run_ab(values: np.ndarray, test, inject, lift: float, n_simulations=1000, alpha=0.05, seed=0) -> SimulationResult:
+def run_ab(values: np.ndarray, test, inject, lift: float, n_simulations=1000, alpha=0.05, seed=0, split=0.5) -> SimulationResult:
     """ Simulate AB tests on N simulations and then get the simulation result as a DataClass
     injecting lift into treatment group depends on metric type if it's binary choose add_conversions
     otherwise user multiply function"""
@@ -88,7 +88,7 @@ def run_ab(values: np.ndarray, test, inject, lift: float, n_simulations=1000, al
     p_values = []
 
     for i in range(n_simulations):
-        treated = split_users(len(values), rng=rng)
+        treated = split_users(len(values), split=split, rng=rng)
 
         control = values[~treated]
         treatment = inject(values[treated], lift, rng=rng)
