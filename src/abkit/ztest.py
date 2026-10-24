@@ -13,10 +13,11 @@ class ComparisonResult():
     ci_low: float
     ci_high: float
     alpha: float
+    df: float = math.inf
 
 
 
-def z_test_proportions(control:np.ndarray, treatment:np.ndarray, alpha=0.05, pooled=False):
+def z_test_proportions(control:np.ndarray, treatment:np.ndarray, alpha=0.05, pooled=False) -> ComparisonResult:
     """Statistical comparison between treatment and control for bernouli random variables."""
 
     if not np.isin(control, [0, 1]).all():
