@@ -4,13 +4,54 @@ import numpy as np
 
 @dataclass(frozen=True)
 class OLSResult:
+    """Coefficients of an OLS fit with three kinds of standard errors.
+
+    For an intercept plus a treatment dummy, the dummy's classical SE equals the
+    pooled-variance t-test's, HC0 the unpooled z-test's (for a 0/1 outcome), and
+    HC2 Welch's.
+
+    Attributes
+    ----------
+    coef : np.ndarray
+        Estimated coefficients, one per column of X.
+    classical_se : np.ndarray
+        Standard errors that assume every row has the same residual variance.
+    robust_se : np.ndarray
+        HC0 (White) standard errors, which let each row have its own variance.
+    hc2_se : np.ndarray
+        HC2 standard errors: HC0 with each squared residual divided by (1 - leverage).
+    """
+
     coef: np.ndarray
     classical_se: np.ndarray
     robust_se: np.ndarray
     hc2_se: np.ndarray
 
 def ols(y: np.ndarray, X: np.ndarray) -> OLSResult:
-    """Ordinary least square regression with classical and robust SE"""
+    """Fit OLS and return the coefficients with classical, HC0 and HC2 standard errors.
+
+    Solves (X^T X) beta = X^T y with X as given, so include a column of ones if you
+    want an intercept.
+
+    Parameters
+    ----------
+    y : np.ndarray
+        Outcome, one value per row.
+    X : np.ndarray
+        Design matrix of shape (n_rows, n_columns), e.g. a column of ones and a
+        treatment dummy.
+
+    Returns
+    -------
+    OLSResult
+        Coefficients and their standard errors.
+
+    Raises
+    ------
+    ValueError
+        If X and y have different numbers of rows, or X doesn't have more rows than
+        columns.
+    """
 
     y = np.asarray(y, dtype=float)
     X = np.asarray(X, dtype=float)

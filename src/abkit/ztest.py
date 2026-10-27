@@ -6,6 +6,28 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class ComparisonResult():
+    """Result of comparing a treatment group with a control group.
+
+    Attributes
+    ----------
+    estimate : float
+        Estimated difference, treatment minus control.
+    standard_error : float
+        Unpooled standard error of the estimate; the confidence interval uses it.
+    statistic : float
+        Test statistic, z or t. A pooled z-test computes it with the pooled standard
+        error, so it can differ from estimate / standard_error.
+    p_value : float
+        Two-sided p-value.
+    ci_low, ci_high : float
+        Bounds of the two-sided (1 - alpha) confidence interval for the difference.
+    alpha : float
+        Significance level of the interval.
+    df : float, default math.inf
+        Degrees of freedom of the t reference distribution; math.inf means the
+        standard normal, as in a z-test.
+    """
+
     estimate: float
     standard_error: float
     statistic: float
@@ -17,8 +39,31 @@ class ComparisonResult():
 
 
 
-def z_test_proportions(control:np.ndarray, treatment:np.ndarray, alpha=0.05, pooled=False) -> ComparisonResult:
-    """Statistical comparison between treatment and control for bernouli random variables."""
+def z_test_proportions(control:np.ndarray, treatment:np.ndarray, alpha: float=0.05, pooled: bool=False) -> ComparisonResult:
+    """Compare two conversion rates with a two-sided z-test.
+
+    Parameters
+    ----------
+    control, treatment : np.ndarray
+        One 0/1 value per user in each group.
+    alpha : float, default 0.05
+        Significance level for the confidence interval.
+    pooled : bool, default False
+        If True, the test statistic uses the pooled standard error, which assumes H0
+        (equal rates). The confidence interval always uses the unpooled one.
+
+    Returns
+    -------
+    ComparisonResult
+        Difference in rates (treatment minus control), its unpooled standard error,
+        z, the p-value and the confidence interval.
+
+    Raises
+    ------
+    ValueError
+        If a group contains values other than 0 and 1, a group is empty, or the
+        standard error is 0 (each group is all 0s or all 1s).
+    """
 
     if not np.isin(control, [0, 1]).all():
         raise ValueError(f"control values must be only 0s and 1s")
