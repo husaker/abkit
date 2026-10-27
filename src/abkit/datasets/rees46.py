@@ -1,10 +1,19 @@
 import pandas as pd
 
-def read_events(paths):
-    """
-    Function takes a list of paths of data files in csv and merges them into one dataframe
-    and adds additional column with the name of source file
-    Event_time column str in format of 2019-12-01 00:00:00 UTC
+def read_events(paths: list) -> pd.DataFrame:
+    """Read REES46 event CSV files into one table.
+
+    Parameters
+    ----------
+    paths : list
+        Paths to the CSV files; the dataset has one per month, e.g. 2019-Dec.csv.
+
+    Returns
+    -------
+    pd.DataFrame
+        All rows from all files with a fresh index, event_time parsed from text such
+        as "2019-12-01 00:00:00 UTC" to a UTC datetime, and a source_file column
+        holding each row's file name without the extension.
     """
 
     raw_data = []
@@ -19,9 +28,21 @@ def read_events(paths):
 
     return df
 
-def build_sessions(events):
-    """
-    function takes a df with raw events by user and aggregates them into user x session dataframe
+def build_sessions(events:pd.DataFrame) -> pd.DataFrame:
+    """Aggregate raw events into one row per user session.
+
+    Parameters
+    ----------
+    events : pd.DataFrame
+        Raw events from read_events.
+
+    Returns
+    -------
+    pd.DataFrame
+        One row per (user_id, user_session) with session_start, session_end,
+        n_events, n_views, n_carts, n_purchases and revenue (sum of purchase prices,
+        0 for a session without purchases). Events without a user_session are left
+        out.
     """
 
     sessions = (
@@ -47,9 +68,21 @@ def build_sessions(events):
     return sessions
 
 
-def build_user_months(events):
-    """
-    function takes events table and builds aggreagate by user and month
+def build_user_months(events:pd.DataFrame) -> pd.DataFrame:
+    """Aggregate raw events into one row per user and calendar month.
+
+    Parameters
+    ----------
+    events : pd.DataFrame
+        Raw events from read_events.
+
+    Returns
+    -------
+    pd.DataFrame
+        One row per (user_id, month), with month as "YYYY-MM" in UTC, and columns
+        n_sessions (distinct non-missing user_session values), n_events, n_views,
+        n_carts, n_purchases, revenue (sum of purchase prices) and converted (True
+        if the user made a purchase that month).
     """
 
     user_agg = (

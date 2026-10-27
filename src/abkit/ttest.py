@@ -4,8 +4,30 @@ from scipy.stats import t
 from abkit.ztest import ComparisonResult
 
 
-def welch_t_test(control:np.ndarray, treatment:np.ndarray, alpha=0.05, pooled=False) -> ComparisonResult:
-    """Statistical comparison between treatment and control for means of continuous random variables."""
+def welch_t_test(control:np.ndarray, treatment:np.ndarray, alpha: float=0.05) -> ComparisonResult:
+    """Compare two means with Welch's t-test, which doesn't assume equal variances.
+
+    The degrees of freedom come from the Welch-Satterthwaite formula.
+
+    Parameters
+    ----------
+    control, treatment : np.ndarray
+        One value per user in each group.
+    alpha : float, default 0.05
+        Significance level for the confidence interval.
+
+    Returns
+    -------
+    ComparisonResult
+        Difference in means (treatment minus control), its unpooled standard error,
+        t, the p-value, the confidence interval and the degrees of freedom.
+
+    Raises
+    ------
+    ValueError
+        If a group has fewer than 2 values, or the standard error is 0 (every value
+        within each group is the same).
+    """
 
     control_copy = np.asarray(control, dtype=float)
     treatment_copy = np.asarray(treatment, dtype=float)
