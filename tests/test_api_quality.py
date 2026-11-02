@@ -20,6 +20,8 @@ MODULES = [
     "abkit.capping",
     "abkit.regression",
     "abkit.power",
+    "abkit.bootstrap",
+    "abkit.mannwhitney",
     "abkit.datasets.rees46",
 ]
 
