@@ -66,7 +66,7 @@ def bootstrap(control: np.ndarray, treatment: np.ndarray, statistic: Callable[..
         one-dimensional groups and as ``statistic(x, axis=-1)`` on
         two-dimensional batches of resamples, one resample per row.
     n_resamples : int, default 2000
-        Number of bootstrap resamples. Must be at least 2.
+        Number of bootstrap resaamples. Must be at least 2.
     alpha : float, default 0.05
         Significance level; the interval covers ``1 - alpha``. Must lie
         strictly between 0 and 1.
