@@ -23,6 +23,8 @@ MODULES = [
     "abkit.bootstrap",
     "abkit.mannwhitney",
     "abkit.delta",
+    "abkit.cuped",
+    "abkit.protocols",
     "abkit.datasets.rees46",
 ]
 
