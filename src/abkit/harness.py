@@ -1,7 +1,8 @@
 import numpy as np
 from dataclasses import dataclass
 from collections.abc import Callable
-
+from abkit.protocols import TwoSampleTest, SupportsPValue
+import numbers
 
 @dataclass(frozen=True)
 class SimulationResult:
@@ -43,7 +44,7 @@ class SimulationResult:
 
         return std / sqrt_n
 
-TestFunction = Callable[[np.ndarray, np.ndarray], float]                   # (control, treatment) -> p-value
+TestFunction = TwoSampleTest                   # (control, treatment) -> p-value
 Injector = Callable[[np.ndarray, float, np.random.Generator], np.ndarray]  # (values, lift, rng) -> new values
 
 
@@ -180,8 +181,13 @@ def run_aa(values: np.ndarray, test: TestFunction, n_simulations:int = 1000,
         treated = split_users(len(values), split=split, rng=rng)
         control = values[~treated]
         treatment = values[treated]
-        p_val = test(control, treatment)
-        p_values.append(p_val)
+        result = test(control, treatment)
+        if isinstance(result, SupportsPValue):
+            p_values.append(float(result.p_value))
+        elif isinstance(result, numbers.Real):
+            p_values.append(float(result))
+        else:
+            raise TypeError(f"a test must return an object with a p_value attribute or a p-value, got {type(result).__name__}")
 
     sim = SimulationResult(p_values=np.array(p_values), alpha=alpha)
 
@@ -228,12 +234,15 @@ def run_ab(values: np.ndarray, test: TestFunction, inject: Injector, lift: float
 
     for i in range(n_simulations):
         treated = split_users(len(values), split=split, rng=rng)
-
         control = values[~treated]
         treatment = inject(values[treated], lift, rng)
-
-        p_val = test(control, treatment)
-        p_values.append(p_val)
+        result = test(control, treatment)
+        if isinstance(result, SupportsPValue):
+            p_values.append(float(result.p_value))
+        elif isinstance(result, numbers.Real):
+            p_values.append(float(result))
+        else:
+            raise TypeError(f"a test must return an object with a p_value attribute or a p-value, got {type(result).__name__}")
 
     sim = SimulationResult(p_values=np.array(p_values), alpha=alpha)
 
