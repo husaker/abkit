@@ -44,7 +44,7 @@ class SimulationResult:
 
         return std / sqrt_n
 
-TestFunction = TwoSampleTest                   # (control, treatment) -> p-value
+TestFunction = TwoSampleTest                   # (control, treatment) -> result with a p_value, or a p-value
 Injector = Callable[[np.ndarray, float, np.random.Generator], np.ndarray]  # (values, lift, rng) -> new values
 
 
@@ -158,7 +158,8 @@ def run_aa(values: np.ndarray, test: TestFunction, n_simulations:int = 1000,
     values : np.ndarray
         One value per randomization unit, e.g. per user.
     test : TestFunction
-        Takes (control, treatment) arrays and returns a p-value.
+        Takes (control, treatment) arrays and returns either a result object with a
+        p_value attribute, as every abkit test does, or a bare p-value.
     n_simulations : int, default 1000
         Number of simulated experiments.
     alpha : float, default 0.05
@@ -172,6 +173,12 @@ def run_aa(values: np.ndarray, test: TestFunction, n_simulations:int = 1000,
     -------
     SimulationResult
         One p-value per simulation.
+
+    Raises
+    ------
+    TypeError
+        If test returns anything else, for example a scipy result, whose attribute is
+        called pvalue.
     """
 
     rng = np.random.default_rng(seed)
@@ -208,7 +215,8 @@ def run_ab(values: np.ndarray, test: TestFunction, inject: Injector, lift: float
     values : np.ndarray
         One value per randomization unit, e.g. per user.
     test : TestFunction
-        Takes (control, treatment) arrays and returns a p-value.
+        Takes (control, treatment) arrays and returns either a result object with a
+        p_value attribute, as every abkit test does, or a bare p-value.
     inject : Injector
         Takes (values, lift, rng) and returns the treatment values with the effect
         added: add_conversions for a 0/1 metric, multiply for a continuous one.
@@ -227,6 +235,12 @@ def run_ab(values: np.ndarray, test: TestFunction, inject: Injector, lift: float
     -------
     SimulationResult
         One p-value per simulation.
+
+    Raises
+    ------
+    TypeError
+        If test returns anything else, for example a scipy result, whose attribute is
+        called pvalue.
     """
 
     rng = np.random.default_rng(seed)

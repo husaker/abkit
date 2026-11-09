@@ -8,7 +8,7 @@ import pytest
 @dataclass(frozen=True)
 class RatioMetric:
 
-    """Metric used to calculate ratio between two groups"""
+    """Metric used to calculate ratio between two groups."""
 
     numerator: np.ndarray
     denominator: np.ndarray
@@ -137,16 +137,3 @@ def relative_lift_test(control: np.ndarray, treatment: np.ndarray, *, alpha:floa
                             ci_low=ci_low,
                             ci_high=ci_high,
                             alpha=alpha)
-
-
-SESSIONS = [1, 2, 3, 4, 10]
-SHOP_A = ([0, 1, 1, 1, 1], SESSIONS)
-SHOP_B = ([1, 1, 1, 1, 0], SESSIONS)
-SHOP_C = ([1, 1, 1, 1, 1], SESSIONS)
-
-# The chapter's five-user revenue groups from part 0 of chapter 4.
-CONTROL = np.array([2.0, 4.0, 4.0, 6.0, 9.0])
-TREATMENT = np.array([3.0, 5.0, 7.0, 8.0, 12.0])
-
-result = np.array([1, float("inf")])
-print(any(result == np.inf))
