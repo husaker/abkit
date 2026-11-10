@@ -59,7 +59,7 @@ def ols(y: np.ndarray, X: np.ndarray) -> OLSResult:
     if y.shape[0] != X.shape[0]:
         raise ValueError('X and y must have the same number of rows')
     if y.shape[0] <= X.shape[1]:
-        raise ValueError('There should be more rows than columns')
+        raise ValueError('There should not be more rows than columns')
 
 
     # X.T @ X counts users, X.T @ X is a table of how much every pair of columns overlaps. Each entry is Σ (column j × column k) over all users
