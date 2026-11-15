@@ -25,6 +25,7 @@ MODULES = [
     "abkit.delta",
     "abkit.cuped",
     "abkit.protocols",
+    "abkit.cupac",
     "abkit.datasets.rees46",
 ]
 

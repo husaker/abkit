@@ -1,6 +1,6 @@
 """Structural types for the parts of abkit that accept any test (PEP 544; Fluent Python, chapter 13)."""
 
-from typing import Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable, Any
 import numpy as np
 
 @runtime_checkable
@@ -31,4 +31,27 @@ class TwoSampleTest(Protocol):
 
     def __call__(self, control: np.ndarray, treatment: np.ndarray, /) -> SupportsPValue | float:
         """Compare the two samples; return a result with a p_value, or the p-value itself."""
+        ...
+
+class Regressor(Protocol):
+    """A model that learns to predict one number per user, in scikit-learn's shape.
+
+    Three methods are required. get_params returns the constructor arguments, so that an
+    unfitted copy can be built from them; fit learns from a feature table and a target; predict
+    returns one number per row. Every scikit-learn regressor satisfies it, and so does any
+    class that follows the same conventions, without inheriting from anything. The parameters
+    of fit and predict are positional-only, so a conforming class may name them as it likes.
+    The protocol is static only: mypy checks it, and there is no isinstance check at runtime.
+    """
+
+    def get_params(self, deep: bool = ...) -> dict[str, Any]:
+        """Return the constructor arguments by name."""
+        ...
+
+    def fit(self, X: np.ndarray, y: np.ndarray, /) -> object:
+        """Learn from one row of features and one target value per user."""
+        ...
+
+    def predict(self, X: np.ndarray, /) -> np.ndarray:
+        """Return one prediction per row of X."""
         ...

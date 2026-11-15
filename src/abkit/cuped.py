@@ -1,12 +1,3 @@
-"""CUPED: variance reduction with a pre-experiment covariate (Deng, Xu, Kohavi and Walker, 2013).
-
-Each user's metric Y is replaced by Y - theta * (X - mean(X)), where X is a covariate measured
-before the experiment, such as the same metric over the pre-experiment period, and
-theta = cov(Y, X) / var(X). The adjusted metric has the same mean and a variance smaller by the
-factor 1 - rho**2, where rho is the correlation of Y and X, so the same experiment can detect
-smaller effects.
-"""
-
 from dataclasses import dataclass
 import numpy as np
 from abkit.ztest import ComparisonResult
