@@ -322,19 +322,3 @@ def cupac_test(values: np.ndarray, features: np.ndarray, treated: np.ndarray,
     results = cuped_test(control=control, treatment=treatment, alpha=alpha)
 
     return results
-
-
-
-
-
-X = np.array([[0.0], [2.0], [4.0], [5.0], [6.0], [7.0], [8.0], [9.0], [10.0]])
-y = np.array([1.0, 3.0, 8.0, 1.0, 1.0, 2.0, 3.0, 9.0, 5.0])
-alpha = 0.0
-
-model = RidgeRegressor(alpha=alpha)
-model.fit(X, y)
-
-preds = cross_fit(model=model, X=X, y=y)
-print(preds)
-
-
