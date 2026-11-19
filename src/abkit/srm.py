@@ -78,37 +78,37 @@ def srm_test(counts: tuple[int, ...], shares:tuple[float, ...]| None=None) -> SR
         (OpenIntro, p. 235). The result is still returned.
     """
 
-    counts = np.array(counts)
-    num_groups = len(counts)
-    total_count = sum(counts)
+    observed = np.array(counts)
+    num_groups = len(observed)
+    total_count = sum(observed)
 
     if shares is None:
-        shares = np.full(num_groups, 1 / num_groups)
+        probabilities = np.full(num_groups, 1 / num_groups)
     else:
-        shares = shares
+        probabilities = np.asarray(shares, dtype=float)
 
-    if counts.ndim != 1 or len(counts) < 2:
+    if observed.ndim != 1 or len(observed) < 2:
         raise ValueError("counts must hold one number of users for each of at least two groups")
-    if len(counts) == 1:
+    if len(observed) == 1:
         raise ValueError("there should be at least two groups")
-    if len(counts) != len(shares):
+    if len(observed) != len(probabilities):
         raise ValueError("wrong length of shares")
-    if any(isinstance(c, float) for c in counts) or any(isinstance(c, bool) for c in counts):
+    if any(isinstance(c, float) for c in observed) or any(isinstance(c, bool) for c in observed):
         raise ValueError("counts should be type of integer")
-    if any(c < 0 for c in counts):
+    if any(c < 0 for c in observed):
         raise ValueError("each of counts should be positive integer")
-    if sum(counts) <= 0:
+    if sum(observed) <= 0:
         raise ValueError("total_count should be above 0")
-    if ~np.isclose(sum(shares), 1.0):
+    if ~np.isclose(sum(probabilities), 1.0):
         raise ValueError("shares should sum to 1")
-    if any(c < 0 for c in shares):
+    if any(c < 0 for c in probabilities):
         raise ValueError("shares should be positive")
-    if any(c >= 1 for c in shares) or any(c <= 0 for c in counts):
+    if any(c >= 1 for c in probabilities) or any(c <= 0 for c in observed):
         raise ValueError("shares should be between 0 and 1")
-    if any(c == float("nan") for c in shares):
+    if any(c == float("nan") for c in probabilities):
         raise ValueError("shares can't be nans")
 
-    expected_counts = tuple(float(s * total_count) for s in shares)
+    expected_counts = tuple(float(s * total_count) for s in probabilities)
 
 
     if any(c < 5 for c in expected_counts):
@@ -119,13 +119,13 @@ def srm_test(counts: tuple[int, ...], shares:tuple[float, ...]| None=None) -> SR
         )
 
     df = num_groups - 1
-    chi_square_statistic = 0
-    for count, expected_count in zip(counts, expected_counts):
+    chi_square_statistic = 0.0
+    for count, expected_count in zip(observed, expected_counts):
         chi_square_statistic += (count - expected_count)**2 / expected_count
 
     p_value = scipy.stats.chi2.sf(chi_square_statistic, df)
 
-    return SRMResult(counts=tuple(int(c) for c in counts), expected=tuple(float(e) for e in expected_counts),
+    return SRMResult(counts=tuple(int(c) for c in observed), expected=tuple(float(e) for e in expected_counts),
                      statistic=float(chi_square_statistic), df=df, p_value=float(p_value))
 
 def check_srm(counts: tuple[int, ...], shares: tuple[float, ...]| None=None,
@@ -275,11 +275,3 @@ def scorecard(treated: np.ndarray, metrics:Mapping[str, tuple[np.ndarray, TwoSam
         results[name] = p_value
 
     return Scorecard(srm=srm, results=results)
-
-counts = (111, 112, 111)
-shares = (0.5, 0.3, 0.2)
-
-srm = srm_test(counts, shares)
-print(srm.statistic, srm.p_value)
-print(srm.expected)
-print(srm.counts)
