@@ -28,6 +28,7 @@ MODULES = [
     "abkit.cupac",
     "abkit.errors",
     "abkit.srm",
+    "abkit.multiple",
     "abkit.datasets.rees46",
 ]
 
